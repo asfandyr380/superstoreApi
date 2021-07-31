@@ -42,6 +42,8 @@ app.use('/api/reviews', reviewsRouter);
 app.use('/api/checkout', checkOutRouter);
 app.use('/api/message', messageRouter);
 
-app.listen(3000, () => {
+var PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
     console.log('server up and running...');
 });
