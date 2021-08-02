@@ -1,18 +1,29 @@
 const pool = require('../../config/database');
 const util = require('util');
+const { compareSync } = require('bcrypt');
 
 module.exports = {
     create: (data, callBack) => {
         pool.query(
-            'insert into products(store, name, price, salePrice, description, status, onSale) values(?, ?, ?, ?, ?, ?, ?)',
+            'insert into products(name, price, salePrice, description, store_Id, onSale, status, cate_Id, image, image2, image3,image4, search_Key, attribute_status, alt_tag, meta_keywords, meta_Desc) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
-                data.store,
                 data.name,
                 data.price,
                 data.salePrice,
                 data.description,
+                data.store_Id,
+                data.onSale,
                 data.status,
-                data.onSale
+                data.cate_Id,
+                data.image,
+                data.image2,
+                data.image3,
+                data.image4,
+                data.searchKey,
+                data.attribute_status,
+                data.alt_tag,
+                data.meta_keywords,
+                data.meta_Desc,
             ],
             (error, results, fields) => {
                 if (error) {
@@ -37,6 +48,19 @@ module.exports = {
                     return callBack(error);
                 }
                 return callBack(null, results);
+            });
+    },
+
+
+    addAttributes: (data, callBack) => {
+        pool.query(`INSERT INTO attribute(stock, variant, price, image, product_Id) VALUES(?,?,?,?,?)`,
+            [data.stock, data.variant, data.price, data.image, data.productId],
+            (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
             });
     },
 
@@ -106,7 +130,7 @@ module.exports = {
     getOnsaleCount: async () => {
         const query = util.promisify(pool.query).bind(pool);
         var res = await query(
-        `SELECT count(id) as total
+            `SELECT count(id) as total
         FROM stores s
         JOIN products p on s.store_Id = p.store_Id
         JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
@@ -208,6 +232,24 @@ module.exports = {
             }
         );
     },
+
+    updateAttributeStatus: (id, state, callBack) => {
+        pool.query(
+            `UPDATE products set attribute_status = ? WHERE id = ?`,
+            [
+                state,
+                id
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    console.log(err);
+                }
+                console.log('Status Updated');
+            }
+        );
+    },
+
+
     updateProduct: (id, data, callBack) => {
         pool.query(
             `update products set category_id = ?, item_name = ?, image = ?, price = ?, duration = ?, description = ? where id = ?`,

@@ -7,7 +7,7 @@ const { create,
     getProductsByCategories,
     getByPrice,
     searchProduct,
-    getAttribute, getProductCount, getProductCategoryCount, getTopSellingCount, getOnsaleCount,
+    getAttribute, getProductCount, getProductCategoryCount, getTopSellingCount, getOnsaleCount, addAttributes, updateAttributeStatus,
 } = require('./product.service');
 const pool = require('../../config/database');
 
@@ -25,7 +25,23 @@ module.exports = {
             }
             return res.status(200).json({
                 success: 1,
-                message: 'Product saved successfully !'
+                message: 'Product saved successfully !',
+                data: results
+            });
+        });
+    },
+
+
+    attribute: (req, res) => {
+        var data = req.body;
+        addAttributes(data, (err, result) => {
+            if (err) {
+                res.json({ success: 0, message: err.message });
+            }
+            updateAttributeStatus(data.productId, 1);
+            return res.json({
+                success: 1,
+                data: result
             });
         });
     },

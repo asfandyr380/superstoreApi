@@ -20,7 +20,8 @@ module.exports = {
             }
             return res.status(200).json({
                 success: 1,
-                message: 'Category saved successfully !'
+                message: 'Category saved successfully !',
+                data: results
             });
         });
     },

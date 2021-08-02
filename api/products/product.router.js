@@ -7,13 +7,15 @@ const {
     updateProduct,
     deleteProduct,
     byPrice,
-    search
+    search,
+    attribute
 } = require('./product.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
 
 
 router.post('/', createProduct);
+router.post('/addAttribute', attribute);
 router.get('/:offset', getProducts);
 router.post('/byPrice', byPrice);
 router.post('/category/:offset', byCategory);

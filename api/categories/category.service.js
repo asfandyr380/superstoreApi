@@ -4,10 +4,11 @@ const util = require('util');
 module.exports = {
     create: (data, callBack) => {
         pool.query(
-            'insert into categories(category_name, cate_image) values(?, ?)',
+            'insert into product_cate(main_cate, cate_name, subCate_name) values(?, ?, ?)',
             [
-                data.shop_id,
-                data.category_name
+                data.generalCate,
+                data.superCate,
+                data.subCate,
             ],
             (error, results, fields) => {
                 if (error) {
@@ -32,10 +33,10 @@ module.exports = {
                 var subCate = res[j];
                 var subId = subCate['superCate_Id'];
                 var re = await query(`SELECT name FROM sub_cate WHERE superCate_Id = ?`, [subId]);
-                var c = {Name: subCate["name"], SubCate: re};
+                var c = { Name: subCate["name"], SubCate: re };
                 superCate.push(c);
             }
-            var data = {MainCate: item['cate_name'], superCate};
+            var data = { MainCate: item['cate_name'], superCate };
             cate.push(data);
             superCate = [];
         }
@@ -43,9 +44,8 @@ module.exports = {
     },
 
     getGeneralCate: callBack => {
-        pool.query(`SELECT * FROM categories`,[], (error, result, fields) => {
-            if(error)
-            {
+        pool.query(`SELECT * FROM categories`, [], (error, result, fields) => {
+            if (error) {
                 console.log(error);
                 return callBack(error);
             }
@@ -54,9 +54,8 @@ module.exports = {
     },
 
     getSuperCate: (cateId, callBack) => {
-        pool.query(`SELECT * FROM super_cate WHERE cate_Id = ?`,[cateId], (error, result, fields) => {
-            if(error)
-            {
+        pool.query(`SELECT * FROM super_cate WHERE cate_Id = ?`, [cateId], (error, result, fields) => {
+            if (error) {
                 console.log(error);
                 return callBack(error);
             }
@@ -65,9 +64,8 @@ module.exports = {
     },
 
     getSubCate: (cateId, callBack) => {
-        pool.query(`SELECT * FROM sub_cate WHERE superCate_Id = ?`,[cateId], (error, result, fields) => {
-            if(error)
-            {
+        pool.query(`SELECT * FROM sub_cate WHERE superCate_Id = ?`, [cateId], (error, result, fields) => {
+            if (error) {
                 console.log(error);
                 return callBack(error);
             }
