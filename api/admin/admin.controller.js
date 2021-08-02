@@ -4,7 +4,7 @@ const { create,
     updateAdmin,
     deleteAdmin,
     getAdminByEmail
- } = require('./admin.service');
+} = require('./admin.service');
 
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
@@ -121,16 +121,18 @@ module.exports = {
                     message: 'User not found'
                 });
             }
-            const result = compareSync(body.password, results.password);
+
+            const result = compareSync(body.password, results.pass);
             if (result) {
                 results.password = undefined;
-                const jsontoken = sign({ result: results}, 'qwe1234', {
+                const jsontoken = sign({ result: results }, 'qwe1234', {
                     expiresIn: '1h'
                 });
                 return res.json({
                     success: 1,
                     message: 'Login successfully',
-                    token: jsontoken
+                    token: jsontoken,
+                    data: results
                 });
             } else {
                 return res.json({

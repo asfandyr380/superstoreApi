@@ -3,8 +3,10 @@ const pool = require('../../config/database');
 module.exports = {
     create: (data, callBack) => {
         pool.query(
-            'insert into admins(username, email, mobile, password) values(?, ?, ?, ?)',
-            [ data.username, data.email, data.mobile, data.password],
+            `INSERT INTO 
+            admin(username, email, pass) 
+            VALUES(? , ?, ?)`,
+            [data.username, data.email, data.password],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
@@ -69,7 +71,7 @@ module.exports = {
     },
     getAdminByEmail: (email, callBack) => {
         pool.query(
-            `select * from admins where email = ?`,
+            `SELECT * FROM admin WHERE email = ?`,
             [email],
             (error, results, fields) => {
                 if (error) {
