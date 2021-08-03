@@ -7,9 +7,15 @@ const { create,
     getProductsByCategories,
     getByPrice,
     searchProduct,
-    getAttribute, getProductCount, getProductCategoryCount, getTopSellingCount, getOnsaleCount, addAttributes, updateAttributeStatus,
+    getAttribute,
+    getProductCount,
+    getProductCategoryCount,
+    getTopSellingCount,
+    getOnsaleCount,
+    addAttributes,
+    updateAttributeStatus,
 } = require('./product.service');
-const pool = require('../../config/database');
+const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
 
 
 module.exports = {
@@ -31,6 +37,17 @@ module.exports = {
         });
     },
 
+    upload: async (req, res) => {
+        try {
+            await uploadImageMiddlewareMulti(req, res);
+            if (req.files == undefined) {
+                return res.status(400).send({ message: "Please Upload an Image" });
+            }
+            return res.status(200).json(req.files);
+        } catch (err) {
+            console.log(err);
+        }
+    },
 
     attribute: (req, res) => {
         var data = req.body;
