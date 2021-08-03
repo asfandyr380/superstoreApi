@@ -85,6 +85,21 @@ module.exports = {
         return res;
     },
 
+    getAllProducts: callBack => {
+        pool.query(`
+        SELECT * FROM products p
+JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+JOIN stores s ON p.store_Id = s.store_Id`,
+            [], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
+
     getProducts: async (offset, callBack) => {
         pool.query(
             `SELECT store_name, s.store_Id, id, name, price, salePrice, description, 

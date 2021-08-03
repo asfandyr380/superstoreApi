@@ -9,7 +9,9 @@ const { create,
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
+var path = require('path');
 
+var root = path.dirname(require.main.filename);
 module.exports = {
     createShop: (req, res) => {
         const body = req.body;
@@ -42,7 +44,7 @@ module.exports = {
     getShopLogo: (req, res) => {
         var imagePath = req.body.path;
         return res.sendFile(
-            imagePath
+           root = 'assets/images/Stores' + imagePath
         );
     },
 
@@ -53,7 +55,7 @@ module.exports = {
             if (req.file == undefined) {
                 return res.status().send({ message: "Please Upload an Image" });
             }
-            res.status(200).send(req.file['path']);
+            res.status(200).send(req.file['filename']);
         } catch (err) {
             console.log(err);
         }

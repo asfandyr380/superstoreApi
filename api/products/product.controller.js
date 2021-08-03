@@ -14,10 +14,14 @@ const { create,
     getOnsaleCount,
     addAttributes,
     updateAttributeStatus,
+    getAllProducts,
 } = require('./product.service');
 const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
+const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 
+var path = require('path');
 
+var root = path.dirname(require.main.filename);
 module.exports = {
     createProduct: (req, res) => {
         const body = req.body;
@@ -37,6 +41,21 @@ module.exports = {
         });
     },
 
+    getAll: (req, res) => {
+        getAllProducts((err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
     upload: async (req, res) => {
         try {
             await uploadImageMiddlewareMulti(req, res);
@@ -44,6 +63,31 @@ module.exports = {
                 return res.status(400).send({ message: "Please Upload an Image" });
             }
             return res.status(200).json(req.files);
+        } catch (err) {
+            console.log(err);
+        }
+    },
+
+    getimages: (req, res) => {
+        var image = req.params.image;
+        return res.sendFile(
+            root + '/assets/images/Products/' + image
+        );
+    },
+    getAttributeimages: (req, res) => {
+        var image = req.params.image;
+        return res.sendFile(
+            root + '/assets/images/Stores/' + image
+        );
+    },
+
+    uploadAttributeImg: async (req, res) => {
+        try {
+            await uploadImageMiddleware(req, res);
+            if (req.file == undefined) {
+                return res.status(400).send({ message: "Please Upload an Image" });
+            }
+            return res.status(200).json(req.file['filename']);
         } catch (err) {
             console.log(err);
         }

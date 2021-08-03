@@ -88,7 +88,7 @@ module.exports = {
     },
     deleteShop: (id, callBack) => {
         pool.query(
-            `delete from shops where id = ?`,
+            `delete from stores where store_Id = ?`,
             [id],
             (error, results, fields) => {
                 if (error) {

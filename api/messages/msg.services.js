@@ -13,6 +13,21 @@ module.exports = {
             });
     },
 
+
+    getMessages: callBack => {
+        pool.query(
+            `SELECT * FROM messages`,
+            [],
+            (error, result, field) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            },
+        );
+    },
+
     messageCount: callBack => {
         pool.query(
             `SELECT COUNT(Id) as totalMsg FROM messages`,

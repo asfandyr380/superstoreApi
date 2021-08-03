@@ -9,7 +9,11 @@ const {
     byPrice,
     search,
     attribute,
-    upload
+    upload,
+    uploadAttributeImg,
+    getimages,
+    getAttributeimages,
+    getAll,
 } = require('./product.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
@@ -17,7 +21,11 @@ const { checkToken } = require('../../auth/token_validation');
 
 router.post('/', createProduct);
 router.post('/upload', upload);
+router.get('/getimage/:image', getimages);
+router.get('/', getAll);
+router.get('/getimg/:image', getAttributeimages);
 router.post('/addAttribute', attribute);
+router.post('/addAttribute/upload', uploadAttributeImg);
 router.get('/:offset', getProducts);
 router.post('/byPrice', byPrice);
 router.post('/category/:offset', byCategory);

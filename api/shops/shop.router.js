@@ -19,7 +19,7 @@ router.post('/logo', getShopLogo);
 router.post('/upload', upload);
 router.get('/:id', checkToken, getShopById);
 router.put('/:id', checkToken, updateShop);
-router.delete('/:id', checkToken, deleteShop);
+router.delete('/:id', deleteShop);
 router.post('/login', login);
 
 module.exports = router;
