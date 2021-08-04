@@ -18,7 +18,7 @@ router.get('/count', count);
 router.post('/logo', getShopLogo);
 router.post('/upload', upload);
 router.get('/:id', checkToken, getShopById);
-router.put('/:id', checkToken, updateShop);
+router.put('/:id', updateShop);
 router.delete('/:id', deleteShop);
 router.post('/login', login);
 

@@ -5,6 +5,7 @@ const { create,
     deleteShop,
     getShopByEmail,
     getShopCount,
+    updateStore,
 } = require('./shop.service');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
@@ -104,7 +105,7 @@ module.exports = {
         const body = req.body;
         const salt = genSaltSync(10);
         body.password = hashSync(body.password, salt);
-        updateShop(id, body, (err, results) => {
+        updateStore(id, body, (err, results) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json({

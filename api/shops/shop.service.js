@@ -1,3 +1,4 @@
+const { response } = require('express');
 const pool = require('../../config/database');
 
 module.exports = {
@@ -31,10 +32,9 @@ module.exports = {
             `SELECT COUNT(store_Id) as totalStores FROM stores`,
             [],
             (error, results, fields) => {
-                if(error)
-                {
+                if (error) {
                     console.log(error);
-                   return callBack(error);
+                    return callBack(error);
                 }
                 return callBack(null, results);
             }
@@ -65,6 +65,21 @@ module.exports = {
             }
         );
     },
+
+    updateStore: (id, data, callBack) => {
+        pool.query(`UPDATE stores 
+        set(store_name, address, email, phone, postal_code, owner_name, password, logo)
+        COALESCE(?, ?, ?, ?, ?, ?, ?, ?) WHERE store_Id = ?`,
+            [data.name, data.address, data.email, data.phone, data.postal_code, data.owner_name, data.password, data.logo, id],
+            (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
     updateShop: (id, data, callBack) => {
         pool.query(
             `update shops set shop_name = ?, email = ?, mobile = ?, address = ?, open = ?, close = ?, password = ? where id = ?`,
