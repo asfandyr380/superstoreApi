@@ -81,6 +81,12 @@ module.exports = {
         );
     },
 
+    getAttr: async (req, res) => {
+        var id = req.params.id;
+       var result = await getAttribute(id);
+       return res.json({success: 1, data: result});
+    },
+
     uploadAttributeImg: async (req, res) => {
         try {
             await uploadImageMiddleware(req, res);
@@ -337,12 +343,6 @@ module.exports = {
                 console.log(err);
                 return;
             }
-            // if (!results) {
-            //     return res.json({
-            //         success: 0,
-            //         message: 'User not found'
-            //     });
-            // }
             return res.json({
                 success: 1,
                 data: 'Product deleted successfully'

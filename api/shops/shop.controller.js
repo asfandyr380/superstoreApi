@@ -6,6 +6,7 @@ const { create,
     getShopByEmail,
     getShopCount,
     updateStore,
+    updateStoreStatus,
 } = require('./shop.service');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
@@ -100,11 +101,28 @@ module.exports = {
             });
         });
     },
+
+    updateStatus: (req, res) => {
+        const id = req.params.id;
+        const status = req.params.status;
+        updateStoreStatus(id, status, (err, results) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: 'Oops something went wrong'
+                });
+            }
+            return res.status(200).json({
+                success: 1,
+                message: 'Status updated successfully'
+            });
+        });
+    },
+
     updateShop: (req, res) => {
         const id = req.params.id;
         const body = req.body;
-        const salt = genSaltSync(10);
-        body.password = hashSync(body.password, salt);
         updateStore(id, body, (err, results) => {
             if (err) {
                 console.log(err);
@@ -121,7 +139,7 @@ module.exports = {
             // }
             return res.status(200).json({
                 success: 1,
-                message: 'User updated successfully'
+                message: 'Store updated successfully'
             });
         });
     },

@@ -66,14 +66,23 @@ module.exports = {
         );
     },
 
+    updateStoreStatus: (id, status, callBack) => {
+        pool.query(`UPDATE stores SET store_status = ? WHERE store_Id = ?`, [status, id], (error, result, fields) => {
+            if (error) {
+                console.log(error);
+                return callBack(error);
+            }
+            return callBack(null, result);
+        });
+    },
+
     updateStore: (id, data, callBack) => {
         pool.query(`UPDATE stores 
-        set(store_name, address, email, phone, postal_code, owner_name, password, logo)
-        COALESCE(?, ?, ?, ?, ?, ?, ?, ?) WHERE store_Id = ?`,
-            [data.name, data.address, data.email, data.phone, data.postal_code, data.owner_name, data.password, data.logo, id],
+        set store_name = ?, owner_name = ?, email = ?, address = ?, postal_code = ?, phone = ?, logo = COALESCE(?, logo) 
+        WHERE store_Id = ?`,
+            [data.name, data.owner_name, data.email, data.address, data.postal_code, data.phone, data.logo, id],
             (error, result, fields) => {
                 if (error) {
-                    console.log(error);
                     return callBack(error);
                 }
                 return callBack(null, result);
