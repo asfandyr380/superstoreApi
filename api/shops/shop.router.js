@@ -14,7 +14,7 @@ const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
 
 router.post('/', createShop);
-router.get('/', getShops);
+router.get('/', checkToken, getShops);
 router.put('/:id/:status', updateStatus);
 router.get('/count', count);
 router.post('/logo', getShopLogo);

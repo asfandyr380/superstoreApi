@@ -4,7 +4,8 @@ module.exports = {
     checkToken: (req, res, next) => {
         let token = req.get('authorization');
         if (token) {
-            token = token.slice(7);
+            // token = token.slice(7);
+            console.log(token);
             jwt.verify(token, 'qwe1234', (err, decoded) => {
                 if (err) {
                     return res.json({

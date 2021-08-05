@@ -3,8 +3,6 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const multer = require('multer');
-const path = require("path");
 
 const userRouter = require('./api/users/user.router');
 const shopRouter = require('./api/shops/shop.router');
