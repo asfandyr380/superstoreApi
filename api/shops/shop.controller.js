@@ -145,6 +145,11 @@ module.exports = {
     },
     deleteShop: (req, res) => {
         const id = req.params.id;
+        const pass = req.body.password;
+        const body = req.body.email;
+        getShopByEmail(body ,(err, result) => {
+            
+        });
         deleteShop(id, (err, results) => {
             if (err) {
                 console.log(err);
