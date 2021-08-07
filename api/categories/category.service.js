@@ -19,6 +19,34 @@ module.exports = {
         );
     },
 
+    createNewCatgory: async (data, callBack) => {
+        pool.query(`INSERT INTO categories(cate_name) VALUES(?)`, [data.GeneralCate],
+            async (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return;
+                }
+                var l = [];
+                l = data.SuperCate;
+                if (l.length !== 0) {
+                    const query = util.promisify(pool.query).bind(pool);
+
+                    for (i = 0; i < l.length; i++) {
+                        var sup = await query(`INSERT INTO super_cate(cate_Id, name) VALUES(?, ?)`, [result['insertId'], l[i]['name']]);
+                        // console.log(l[i]['SubCate']);
+                        var li = l[i]['SubCate'];
+                        if (li.length !== 0) {
+                            for (j = 0; j < li.length; j++) {
+                                var sub = await query(`INSERT INTO sub_cate(superCate_Id, name) VALUES(?, ?)`, [sup['insertId'], li[j]['name']]);
+                            }
+                        }
+                    }
+                    return callBack(null, result);
+                }
+
+            });
+    },
+
     getCategories: async callBack => {
         var cate = [];
         var superCate = [];

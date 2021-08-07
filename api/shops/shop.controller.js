@@ -8,6 +8,8 @@ const { create,
     updateStore,
     updateStoreStatus,
 } = require('./shop.service');
+const { getAdminByEmail } = require('../admin/admin.service');
+const { deleteProductsWithStore } = require('../products/product.service');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
@@ -46,7 +48,7 @@ module.exports = {
     getShopLogo: (req, res) => {
         var imagePath = req.body.path;
         return res.sendFile(
-           root = 'assets/images/Stores' + imagePath
+            root = 'assets/images/Stores' + imagePath
         );
     },
 
@@ -143,29 +145,48 @@ module.exports = {
             });
         });
     },
+
     deleteShop: (req, res) => {
         const id = req.params.id;
         const pass = req.body.password;
-        const body = req.body.email;
-        getShopByEmail(body ,(err, result) => {
-            
-        });
-        deleteShop(id, (err, results) => {
+        const email = req.body.email;
+        getAdminByEmail(email, (err, results) => {
             if (err) {
                 console.log(err);
-                return;
             }
-            // if (!results) {
-            //     return res.json({
-            //         success: 0,
-            //         message: 'User not found'
-            //     });
-            // }
-            return res.json({
-                success: 1,
-                data: 'User deleted successfully'
-            });
+            if (!results) {
+                return res.json({
+                    success: 0,
+                    message: 'User not found'
+                });
+            }
+            const result = compareSync(pass, results.pass);
+            if (result) {
+                results.password = undefined;
+                deleteShop(id, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    deleteProductsWithStore(id, (err, result) => {
+                        if (err) {
+                            return res.json({ success: 0, message: "No Products Found Against Store" });
+                        }
+                    });
+                    return res.json({
+                        success: 1,
+                        data: 'Store deleted successfully'
+                    });
+                });
+            } else {
+                return res.json({
+                    success: 0,
+                    message: 'Password is Wrong'
+                });
+            }
+
         });
+
     },
     login: (req, res) => {
         const body = req.body;

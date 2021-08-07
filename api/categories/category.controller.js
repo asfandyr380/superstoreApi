@@ -5,6 +5,7 @@ const { create,
     getSubCate,
     updateCategory,
     deleteCategory,
+    createNewCatgory,
 } = require('./category.service');
 
 module.exports = {
@@ -25,6 +26,18 @@ module.exports = {
             });
         });
     },
+
+    createCate: (req, res) => {
+        const body = req.body;
+        createNewCatgory(body, (err, result) => {
+            if (err) {
+                res.json({ success: 0, message: "Database Error" });
+            }
+            return res.json({ success: 1, message: "New Category Successfully Added" });
+        });
+    },
+
+
     getCategories: (req, res) => {
         getCategories((err, results) => {
             if (err) {

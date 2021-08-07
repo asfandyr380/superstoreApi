@@ -285,6 +285,18 @@ JOIN stores s ON p.store_Id = s.store_Id`,
             }
         );
     },
+
+    deleteProductsWithStore: (id, callBack) => {
+        pool.query(`DELETE FROM products WHERE store_Id = ?`, [id], (error, result, fields) => {
+            if(error)
+            {
+                console.log(error);
+                return callBack(error);
+            }
+            return callBack(null, result);
+        });
+    },
+
     deleteProduct: (id, callBack) => {
         pool.query(
             `delete from products where id = ?`,

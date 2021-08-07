@@ -6,11 +6,13 @@ const {
     subCategory,
     updateCategory,
     deleteCategory,
+    createCate,
 } = require('./category.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
 
 router.post('/', createCategory);
+router.post('/create', createCate);
 router.get('/', getCategories);
 router.get('/main', generalCategory);
 router.get('/super/:id', superCategory);

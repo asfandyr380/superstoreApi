@@ -122,9 +122,10 @@ module.exports = {
             }
         );
     },
+
     getShopByEmail: (email, callBack) => {
         pool.query(
-            `select * from shops where email = ?`,
+            `SELECT * FROM admin WHERE email = ?`,
             [email],
             (error, results, fields) => {
                 if (error) {
