@@ -101,12 +101,12 @@ module.exports = {
         });
     },
 
-    updateCategory: (id, data, callBack) => {
+    updateSuperCategory: (data, callBack) => {
         pool.query(
-            `update categories set category_name = ? where id = ?`,
+            `update super_cate set name = ? where superCate_Id = ?`,
             [
-                data.category_name,
-                id
+                data.supername,
+                data.superId
             ],
             (error, results, fields) => {
                 if (error) {
@@ -116,6 +116,55 @@ module.exports = {
             }
         );
     },
+
+    updateSubCategory: (data, callBack) => {
+        pool.query(
+            `update sub_cate set name = ? where subCate_Id = ?`,
+            [
+                data.subname,
+                data.subId
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
+    addnewSubCategorys: (data, callBack) => {
+        pool.query(
+            `Insert into sub_cate(name, superCate_Id) Values(?, ?)`,
+            [
+                data.name,
+                data.superId
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
+    addnewSuperCategorys: (data, callBack) => {
+        pool.query(
+            `Insert into super_cate(name, cate_Id) Values(?, ?)`,
+            [
+                data.name,
+                data.cateId
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
     deleteCategory: (id, callBack) => {
         pool.query(
             `delete from categories where id = ?`,

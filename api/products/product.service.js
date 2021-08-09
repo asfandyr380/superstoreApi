@@ -5,7 +5,7 @@ const { compareSync } = require('bcrypt');
 module.exports = {
     create: (data, callBack) => {
         pool.query(
-            'insert into products(name, price, salePrice, description, store_Id, onSale, status, cate_Id, image, image2, image3,image4, search_Key, attribute_status, alt_tag, meta_keywords, meta_Desc) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'insert into products(name, price, salePrice, description, store_Id, onSale, status, cate_Id, image, image2, image3,image4, search_Key, attribute_status, alt_tag, meta_keywords, meta_Desc, shortDesc) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 data.name,
                 data.price,
@@ -24,6 +24,7 @@ module.exports = {
                 data.alt_tag,
                 data.meta_keywords,
                 data.meta_Desc,
+                data.shortDesc,
             ],
             (error, results, fields) => {
                 if (error) {

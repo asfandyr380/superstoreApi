@@ -55,7 +55,6 @@ module.exports = {
     upload: async (req, res) => {
         try {
             await uploadImageMiddleware(req, res);
-            console.log(req.file);
             if (req.file == undefined) {
                 return res.status().send({ message: "Please Upload an Image" });
             }

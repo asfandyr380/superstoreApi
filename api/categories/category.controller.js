@@ -3,9 +3,12 @@ const { create,
     getGeneralCate,
     getSuperCate,
     getSubCate,
-    updateCategory,
+    updateSuperCategory,
     deleteCategory,
     createNewCatgory,
+    updateSubCategory,
+    addnewSubCategorys,
+    addnewSuperCategorys
 } = require('./category.service');
 
 module.exports = {
@@ -115,9 +118,8 @@ module.exports = {
     },
 
     updateCategory: (req, res) => {
-        const id = req.params.id;
         const body = req.body;
-        updateCategory(id, body, (err, results) => {
+        updateSuperCategory(body, (err, results) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json({
@@ -125,18 +127,55 @@ module.exports = {
                     message: 'Oops something went wrong'
                 });
             }
-            // if (!results) {
-            //     return res.json({
-            //         success: 0,
-            //         message: 'User not found'
-            //     });
-            // }
+            if (body.subname !== undefined && body.subname !== '') {
+                updateSubCategory(body, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).json({
+                            success: 0,
+                            message: 'Oops something went wrong'
+                        });
+                    }
+
+                });
+            } else {
+                return res.status(200).json({
+                    success: 1,
+                    message: 'Category updated successfully'
+                });
+            }
             return res.status(200).json({
                 success: 1,
                 message: 'Category updated successfully'
             });
         });
     },
+
+    addnewSubCate: (req, res) => {
+        const body = req.body;
+        if (body.superId !== undefined) {
+            addnewSubCategorys(body, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({ success: 0, message: "Oops Something is Wrong" });
+                }
+                return res.json({ success: 1, message: "Category Successfully Added" });
+            });
+        } else if (body.cateId !== undefined) {
+            addnewSuperCategorys(body, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({ success: 0, message: "Oops Something is Wrong" });
+                }
+                return res.json({ success: 1, message: "Category Successfully Added" });
+            });
+        }
+        else {
+            res.json({ success: 0, message: "Nothing Found" });
+        }
+
+    },
+
     deleteCategory: (req, res) => {
         const id = req.params.id;
         deleteCategory(id, (err, results) => {
