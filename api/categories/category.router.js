@@ -4,10 +4,14 @@ const {
     generalCategory,
     superCategory,
     subCategory,
-    updateCategory,
+    updateSuperCategory,
     deleteCategory,
     createCate,
-    addnewSubCate
+    addnewSubCate,
+    updateProductCategory,
+    updateSubCate,
+    deleteSuperCate,
+    deleteSubCate
 } = require('./category.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
@@ -19,7 +23,11 @@ router.get('/', getCategories);
 router.get('/main', generalCategory);
 router.get('/super/:id', superCategory);
 router.get('/sub/:id', subCategory);
-router.put('/', updateCategory);
+router.put('/super', updateSuperCategory);
+router.put('/sub', updateSubCate);
+router.put('/:id', updateProductCategory);
 router.delete('/:id', deleteCategory);
+router.delete('/super/:id', deleteSuperCate);
+router.delete('/sub/:id', deleteSubCate);
 
 module.exports = router;

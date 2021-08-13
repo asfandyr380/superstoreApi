@@ -46,9 +46,9 @@ module.exports = {
     },
 
     getShopLogo: (req, res) => {
-        var imagePath = req.body.path;
+        var filename = req.params.name;
         return res.sendFile(
-            root = 'assets/images/Stores' + imagePath
+            root + '/assets/images/Stores/' + filename
         );
     },
 

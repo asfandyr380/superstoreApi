@@ -17,7 +17,7 @@ router.post('/', createShop);
 router.get('/', getShops);
 router.put('/:id/:status', updateStatus);
 router.get('/count', count);
-router.post('/logo', getShopLogo);
+router.get('/logo/:name', getShopLogo);
 router.post('/upload', upload);
 router.get('/:id', checkToken, getShopById);
 router.put('/:id', updateShop);

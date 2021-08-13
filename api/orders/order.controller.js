@@ -1,3 +1,4 @@
+const { request } = require('express');
 const { create,
     getOrders,
     getShopOrders,
@@ -47,9 +48,29 @@ module.exports = {
                     message: 'No Orders Were found'
                 });
             }
+            var tempId = results[0]['orderId']
+            var tempUser = results[0]['username'];
+            var l = [];
+            var li = [];
+            for (i = 0; i < results.length; i++) {
+                var item = results[i];
+                var id = item['orderId'];
+                if (id === tempId) {
+                    l.push(item);
+                } else {
+                    tempId = id;
+                    var map = { User: tempUser, result: l };
+                    li.push(map);
+                    tempUser = item['username'];
+                    l = [];
+                    l.push(item);
+                }
+            }
+            var map = {User: tempUser, result: l};
+            li.push(map);
             return res.json({
                 success: 1,
-                data: results
+                data: li
             });
         });
     },

@@ -103,7 +103,7 @@ module.exports = {
 
     updateSuperCategory: (data, callBack) => {
         pool.query(
-            `update super_cate set name = ? where superCate_Id = ?`,
+            `update super_cate set name = COALESCE(?, name) where superCate_Id = ?`,
             [
                 data.supername,
                 data.superId
@@ -119,7 +119,7 @@ module.exports = {
 
     updateSubCategory: (data, callBack) => {
         pool.query(
-            `update sub_cate set name = ? where subCate_Id = ?`,
+            `update sub_cate set name = COALESCE(?, name) where subCate_Id = ?`,
             [
                 data.subname,
                 data.subId
@@ -165,10 +165,91 @@ module.exports = {
         );
     },
 
-    deleteCategory: (id, callBack) => {
+    deleteCategory: async (id, callBack) => {
         pool.query(
-            `delete from categories where id = ?`,
+            `delete from categories where cate_Id = ?`,
             [id],
+            async (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                const query = util.promisify(pool.query).bind(pool);
+                var q = await query(`select * from super_cate where cate_Id = ?`, [id]);
+                pool.query(
+                    `delete from super_cate where cate_Id = ?`,
+                    [id],
+                    (error, results, fields) => {
+                        if (error) {
+                            return callBack(error);
+                        }
+                        for (i = 0; i < q.length; i++) {
+                            var qId = q[i]['superCate_Id'];
+                            pool.query(
+                                `delete from sub_cate where superCate_Id = ?`,
+                                [qId],
+                                (error, results, fields) => {
+                                    if (error) {
+                                        console.log(error);
+                                        return callBack(error);
+                                    }
+                                }
+                            );
+                        }
+                        return callBack(null, results[0]);
+                    }
+                );
+            }
+        );
+    },
+
+    deleteSubCate: (id, callBack) => {
+        pool.query(
+            `delete from sub_cate where subCate_Id = ?`,
+            [id],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
+    deleteSuperCate: (id, callBack) => {
+        pool.query(
+            `delete from super_cate where superCate_Id = ?`,
+            [id],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                pool.query(
+                    `delete from sub_cate where superCate_Id = ?`,
+                    [id],
+                    (error, results, fields) => {
+                        if (error) {
+                            return callBack(error);
+                        }
+                        return callBack(null, results[0]);
+                    }
+                );
+            }
+        );
+    },
+
+    updateProductCate: (id, data, callBack) => {
+        pool.query(
+            `update product_cate set
+             main_cate = COALESCE(?, main_cate),
+             cate_name = COALESCE(?, cate_name),
+             subCate_name = COALESCE(?, subCate_name)
+             where product_cate_Id = ?`,
+            [
+                data.mainCate,
+                data.superCate,
+                data.subCateName,
+                id
+            ],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);

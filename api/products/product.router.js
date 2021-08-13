@@ -33,7 +33,7 @@ router.post('/byPrice', byPrice);
 router.post('/category/:offset', byCategory);
 router.get('/onSale/:page', saleProducts);
 router.get('/topSelling/:page', topSelling);
-router.put('/:id', checkToken, updateProduct);
+router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
 router.post('/search', search);
 

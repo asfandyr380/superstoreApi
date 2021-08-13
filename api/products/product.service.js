@@ -268,14 +268,30 @@ JOIN stores s ON p.store_Id = s.store_Id`,
 
     updateProduct: (id, data, callBack) => {
         pool.query(
-            `update products set category_id = ?, item_name = ?, image = ?, price = ?, duration = ?, description = ? where id = ?`,
+            `update products 
+            set name = COALESCE(?, name), price = COALESCE(?, price), salePrice = COALESCE(?, salePrice), description = COALESCE(?, description), 
+            store_Id = COALESCE(?, store_Id), onSale = COALESCE(?, onSale), cate_Id = COALESCE(?, cate_Id), 
+            image = COALESCE(?, image), image2 = COALESCE(?, image2), image3 = COALESCE(?, image3), image4 = COALESCE(?, image4), 
+            search_Key = COALESCE(?, search_Key), attribute_status = COALESCE(?, attribute_status), alt_tag = COALESCE(?, alt_tag), 
+            meta_keywords = COALESCE(?, meta_keywords), meta_Desc = COALESCE(?, meta_Desc), shortDesc = COALESCE(?, shortDesc) where id = ?`,
             [
-                data.category_id,
-                data.item_name,
-                data.image,
+                data.name,
                 data.price,
-                data.duration,
+                data.salePrice,
                 data.description,
+                data.store_Id,
+                data.onSale,
+                data.cate_Id,
+                data.image,
+                data.image2,
+                data.image3,
+                data.image4,
+                data.searchKey,
+                data.attribute_status,
+                data.alt_tag,
+                data.meta_keywords,
+                data.meta_Desc,
+                data.shortDesc,
                 id
             ],
             (error, results, fields) => {
@@ -289,8 +305,7 @@ JOIN stores s ON p.store_Id = s.store_Id`,
 
     deleteProductsWithStore: (id, callBack) => {
         pool.query(`DELETE FROM products WHERE store_Id = ?`, [id], (error, result, fields) => {
-            if(error)
-            {
+            if (error) {
                 console.log(error);
                 return callBack(error);
             }

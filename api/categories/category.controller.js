@@ -8,7 +8,10 @@ const { create,
     createNewCatgory,
     updateSubCategory,
     addnewSubCategorys,
-    addnewSuperCategorys
+    addnewSuperCategorys,
+    updateProductCate,
+    deleteSuperCate,
+    deleteSubCate,
 } = require('./category.service');
 
 module.exports = {
@@ -117,7 +120,20 @@ module.exports = {
         });
     },
 
-    updateCategory: (req, res) => {
+    updateProductCategory: (req, res) => {
+        const id = req.params.id;
+        const body = req.body;
+        updateProductCate(id, body, (err, result) => {
+            if(err)
+            {
+                return res.json({success: 0, message: "Something Went Wrong"});
+            }
+            return res.json({success: 1, message: "Category Updated Succssfully"});
+        });
+    },
+
+
+    updateSuperCategory: (req, res) => {
         const body = req.body;
         updateSuperCategory(body, (err, results) => {
             if (err) {
@@ -127,21 +143,21 @@ module.exports = {
                     message: 'Oops something went wrong'
                 });
             }
-            if (body.subname !== undefined && body.subname !== '') {
-                updateSubCategory(body, (err, results) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(500).json({
-                            success: 0,
-                            message: 'Oops something went wrong'
-                        });
-                    }
+            return res.status(200).json({
+                success: 1,
+                message: 'Category updated successfully'
+            });
+        });
+    },
 
-                });
-            } else {
-                return res.status(200).json({
-                    success: 1,
-                    message: 'Category updated successfully'
+    updateSubCate: (req, res) => {
+        const body = req.body;
+        updateSubCategory(body, (err, results) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: 'Oops something went wrong'
                 });
             }
             return res.status(200).json({
@@ -183,16 +199,38 @@ module.exports = {
                 console.log(err);
                 return;
             }
-            // if (!results) {
-            //     return res.json({
-            //         success: 0,
-            //         message: 'User not found'
-            //     });
-            // }
             return res.json({
                 success: 1,
                 data: 'Category deleted successfully'
             });
         });
-    }
+    },
+
+    deleteSuperCate: (req, res) => {
+        const id = req.params.id;
+        deleteSuperCate(id, (err, results) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            return res.json({
+                success: 1,
+                data: 'Category deleted successfully'
+            });
+        });
+    },
+
+    deleteSubCate: (req, res) => {
+        const id = req.params.id;
+        deleteSubCate(id, (err, results) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            return res.json({
+                success: 1,
+                data: 'Category deleted successfully'
+            });
+        });
+    },
 }

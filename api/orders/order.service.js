@@ -35,12 +35,14 @@ module.exports = {
 
     getOrders: callBack => {
         pool.query(
-            `SELECT orderId, userAddress, date, username, u.email, mobile, discount, coupon_No, u.postal_Code, subTotal, grandTotal, quentity, store_name, u.address as StoreAddress
-             FROM orders o
-            JOIN users u ON o.user_Id = u.Id 
-            JOIN checkout c ON o.checkout_Id = c.checkout_Id
-            JOIN coupons co ON c.coupon_Id = co.coupon_Id
-            JOIN stores s ON o.store_Id = s.store_Id`,
+            `select * from orders o
+            join cart c on c.order_Id = o.orderId
+            join checkout ch on ch.checkout_Id = o.checkout_Id
+            join products p on p.Id = c.product_Id
+            join stores s on s.store_Id = c.store_Id
+            join coupons cou on cou.coupon_Id = ch.coupon_Id
+            where c.cart_status = 1 and o.order_status = 0
+            order by orderId`,
             [],
             (error, results, fields) => {
                 if (error) {

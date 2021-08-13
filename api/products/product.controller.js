@@ -18,8 +18,9 @@ const { create,
 } = require('./product.service');
 const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
-
+const { getAdminByEmail } = require('../admin/admin.service');
 var path = require('path');
+const { compareSync } = require('bcrypt');
 
 var root = path.dirname(require.main.filename);
 module.exports = {
@@ -84,8 +85,8 @@ module.exports = {
 
     getAttr: async (req, res) => {
         var id = req.params.id;
-       var result = await getAttribute(id);
-       return res.json({success: 1, data: result});
+        var result = await getAttribute(id);
+        return res.json({ success: 1, data: result });
     },
 
     uploadAttributeImg: async (req, res) => {
@@ -339,15 +340,30 @@ module.exports = {
     },
     deleteProduct: (req, res) => {
         const id = req.params.id;
-        deleteProduct(id, (err, results) => {
+        const email = req.body.email;
+        const password = req.body.password;
+        getAdminByEmail(email, (err, result) => {
             if (err) {
-                console.log(err);
-                return;
+                return res.json({ success: 0, messgae: "Something is Wrong" });
             }
-            return res.json({
-                success: 1,
-                data: 'Product deleted successfully'
-            });
+            if (!result) {
+                return res.json({ success: 0, message: "No User Found" });
+            }
+            var matchPass = compareSync(password, result.pass);
+            if (matchPass) {
+                deleteProduct(id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    return res.json({
+                        success: 1,
+                        data: 'Product deleted successfully'
+                    });
+                });
+            } else {
+                return res.json({ success: 0, message: "Password is Wrong" });
+            }
         });
     }
 }
