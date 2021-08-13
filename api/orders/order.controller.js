@@ -52,21 +52,29 @@ module.exports = {
             var tempUser = results[0]['username'];
             var l = [];
             var li = [];
+            var grandTotal = 0;
+            var tempcouponNo = results[0]['coupon_No'];
+            var tempDiscount = results[0]['discount'];
+            var tempPostalCode = results[0]['postal_Code'];
             for (i = 0; i < results.length; i++) {
                 var item = results[i];
                 var id = item['orderId'];
                 if (id === tempId) {
                     l.push(item);
+                    grandTotal = grandTotal + item['grandtotal'];
                 } else {
                     tempId = id;
-                    var map = { User: tempUser, result: l };
+                    var map = { Username: tempUser, SubTotal: grandTotal, CouponNo: tempcouponNo, Discount: tempDiscount, Postal_Code: tempPostalCode, GrandTotal: grandTotal, result: l };
                     li.push(map);
+                    tempcouponNo = item['coupon_No'];
+                    tempDiscount = item['discount'];
                     tempUser = item['username'];
+                    tempPostalCode = item['postal_Code'];
                     l = [];
                     l.push(item);
                 }
             }
-            var map = {User: tempUser, result: l};
+            var map = { Username: tempUser, SubTotal: grandTotal, CouponNo: tempcouponNo, Discount: tempDiscount, Postal_Code: tempPostalCode, GrandTotal: grandTotal, result: l };
             li.push(map);
             return res.json({
                 success: 1,
