@@ -62,7 +62,7 @@ module.exports = {
             join stores s on s.store_Id = c.store_Id
             join coupons cou on cou.coupon_Id = ch.coupon_Id
             where c.cart_status = 1 and postal_Code Like ?`,
-            [name],
+            [name + "%"],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
@@ -82,7 +82,7 @@ module.exports = {
             join stores s on s.store_Id = c.store_Id
             join coupons cou on cou.coupon_Id = ch.coupon_Id
             where c.cart_status = 1 and o.order_status = 0
-            order by orderId`,
+            order by o.orderId`,
             [],
             (error, results, fields) => {
                 if (error) {

@@ -192,7 +192,6 @@ module.exports = {
                     if (!rs) {
                         return res.json({ success: 0, message: "No Orders Found" });
                     }
-                    // console.log(rs);
                     var tempId = rs[0]['orderId'];
                     var tempUser = rs[0]['username'];
                     var l = [];
