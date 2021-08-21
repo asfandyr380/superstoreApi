@@ -123,9 +123,48 @@ module.exports = {
         );
     },
 
+    searchStoreByName: (name, callBack) => {
+        pool.query(
+            `SELECT * FROM stores WHERE store_name LIKE ?`,
+            [name + "%"],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
+    searchStoreByOwnerName: (name, callBack) => {
+        pool.query(
+            `SELECT * FROM stores WHERE owner_name LIKE ?`,
+            [name + "%"],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
+    searchStoreByPostalCode: (name, callBack) => {
+        pool.query(
+            `SELECT * FROM stores WHERE postal_code LIKE ?`,
+            [name + "%"],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
     getShopByEmail: (email, callBack) => {
         pool.query(
-            `SELECT * FROM admin WHERE email = ?`,
+            `SELECT * FROM stores WHERE email = ?`,
             [email],
             (error, results, fields) => {
                 if (error) {

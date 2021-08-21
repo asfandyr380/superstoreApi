@@ -11,7 +11,8 @@ const {
     updateProductCategory,
     updateSubCate,
     deleteSuperCate,
-    deleteSubCate
+    deleteSubCate,
+    getAllSuper,
 } = require('./category.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
@@ -22,6 +23,7 @@ router.post('/create', createCate);
 router.get('/', getCategories);
 router.get('/main', generalCategory);
 router.get('/super/:id', superCategory);
+router.get('/super', getAllSuper);
 router.get('/sub/:id', subCategory);
 router.put('/super', updateSuperCategory);
 router.put('/sub', updateSubCate);

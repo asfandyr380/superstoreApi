@@ -9,12 +9,14 @@ const {
     getShopLogo,
     count,
     updateStatus,
+    searchStore,
 } = require('./shop.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
 
 router.post('/', createShop);
 router.get('/', getShops);
+router.get('/search/:key', searchStore);
 router.put('/:id/:status', updateStatus);
 router.get('/count', count);
 router.get('/logo/:name', getShopLogo);

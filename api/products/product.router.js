@@ -15,6 +15,10 @@ const {
     getAttributeimages,
     getAll,
     getAttr,
+    searchAll,
+    searchAllByStore,
+    searchAllByCate,
+    getProductForStore,
 } = require('./product.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
@@ -24,6 +28,10 @@ router.post('/', createProduct);
 router.post('/upload', upload);
 router.get('/getimage/:image', getimages);
 router.get('/', getAll);
+router.get('/storeProducts/:id', getProductForStore);
+router.get('/searchAll/:key', searchAll);
+router.get('/searchAllByStore/:key', searchAllByStore);
+router.get('/searchAllByCate/:key', searchAllByCate);
 router.get('/getAttribute/:id', getAttr);
 router.get('/getimg/:image', getAttributeimages);
 router.post('/addAttribute', attribute);

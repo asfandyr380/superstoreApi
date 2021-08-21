@@ -1,3 +1,4 @@
+const { json } = require('body-parser');
 const { create,
     getCategories,
     getGeneralCate,
@@ -12,6 +13,7 @@ const { create,
     updateProductCate,
     deleteSuperCate,
     deleteSubCate,
+    getAllSuperCate,
 } = require('./category.service');
 
 module.exports = {
@@ -81,6 +83,18 @@ module.exports = {
         });
     },
 
+    getAllSuper: (req, res) => {
+        getAllSuperCate((err, result) => {
+            if (err) {
+                return res.json({ success: 0, message: "Database Error" });
+            }
+            if (!result) {
+                return res.json({ success: 0, message: "Nothing Found in the Database" });
+            }
+            return res.json({ success: 1, data: result });
+        });
+    },
+
     superCategory: (req, res) => {
         var cateId = req.params.id;
         getSuperCate(cateId, (err, result) => {
@@ -124,11 +138,10 @@ module.exports = {
         const id = req.params.id;
         const body = req.body;
         updateProductCate(id, body, (err, result) => {
-            if(err)
-            {
-                return res.json({success: 0, message: "Something Went Wrong"});
+            if (err) {
+                return res.json({ success: 0, message: "Something Went Wrong" });
             }
-            return res.json({success: 1, message: "Category Updated Succssfully"});
+            return res.json({ success: 1, message: "Category Updated Succssfully" });
         });
     },
 

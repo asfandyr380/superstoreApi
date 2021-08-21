@@ -86,11 +86,11 @@ module.exports = {
         return res;
     },
 
-    getAllProducts: callBack => {
+    getAllProducts: (callBack) => {
         pool.query(`
         SELECT * FROM products p
-JOIN product_cate c ON p.cate_Id = c.product_cate_Id
-JOIN stores s ON p.store_Id = s.store_Id`,
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id`,
             [], (error, result, fields) => {
                 if (error) {
                     console.log(error);
@@ -100,6 +100,67 @@ JOIN stores s ON p.store_Id = s.store_Id`,
             });
     },
 
+    getStoreProducts: (id, callBack) => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        where store_Id = ?`,
+            [id], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
+    searchAllProducts: (key, callBack) => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        where search_Key LIKE ?`,
+            ["%" + key + "%"], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
+
+    searchAllProductsByStoreName: (key, callBack) => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        where store_name LIKE ?`,
+            ["%" + key + "%"], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
+
+    searchAllProductsBySubCate: (key, callBack) => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        where cate_name LIKE ?`,
+            ["%" + key + "%"], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
 
     getProducts: async (offset, callBack) => {
         pool.query(
@@ -111,7 +172,7 @@ JOIN stores s ON p.store_Id = s.store_Id`,
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
             WHERE status = 1 AND store_status = 1
             ORDER BY price
-            LIMIT 1
+            LIMIT 15
             OFFSET ?`,
             [parseInt(offset)],
             (error, results, fields) => {
@@ -237,7 +298,7 @@ JOIN stores s ON p.store_Id = s.store_Id`,
             cate_name = ?
             OR subCate_name = ?
             ORDER BY price
-            LIMIT 1
+            LIMIT 10
             OFFSET ?`,
             [body.cate, body.subCate, parseInt(offset)],
             (error, results, fields) => {

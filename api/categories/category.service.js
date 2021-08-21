@@ -91,6 +91,16 @@ module.exports = {
         });
     },
 
+    getAllSuperCate: (callBack) => {
+        pool.query(`SELECT * FROM super_cate`, [], (error, result, fields) => {
+            if (error) {
+                console.log(error);
+                return callBack(error);
+            }
+            return callBack(null, result);
+        });
+    },
+
     getSubCate: (cateId, callBack) => {
         pool.query(`SELECT * FROM sub_cate WHERE superCate_Id = ?`, [cateId], (error, result, fields) => {
             if (error) {

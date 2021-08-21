@@ -7,6 +7,9 @@ const { create,
     getShopCount,
     updateStore,
     updateStoreStatus,
+    searchStoreByName,
+    searchStoreByOwnerName,
+    searchStoreByPostalCode,
 } = require('./shop.service');
 const { getAdminByEmail } = require('../admin/admin.service');
 const { deleteProductsWithStore } = require('../products/product.service');
@@ -100,6 +103,41 @@ module.exports = {
                 success: 1,
                 data: results
             });
+        });
+    },
+
+    searchStore: (req, res) => {
+        const key = req.params.key;
+        searchStoreByName(key, (err, results) => {
+            if (err) {
+                console.log(err);
+                return res.json({ success: 0, message: "Database Connection Error" });
+            }
+            if (results.length !== 0) {
+                return res.json({ success: 1, data: results });
+            } else {
+                searchStoreByOwnerName(key, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return res.json({ success: 0, message: "Database Connection Error" });
+                    }
+                    if (results.length !== 0) {
+                        return res.json({ success: 1, data: results });
+                    } else {
+                        searchStoreByPostalCode(key, (err, results) => {
+                            if (err) {
+                                console.log(err);
+                                return res.json({ success: 0, message: "Database Connection Error" });
+                            }
+                            if(!results)
+                            {
+                            return res.json({ success: 0, data: "No Stores Found" });
+                            }
+                            return res.json({ success: 1, data: results });
+                        });
+                    }
+                });
+            }
         });
     },
 

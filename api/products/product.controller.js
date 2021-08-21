@@ -15,6 +15,10 @@ const { create,
     addAttributes,
     updateAttributeStatus,
     getAllProducts,
+    searchAllProducts,
+    searchAllProductsByStoreName,
+    searchAllProductsBySubCate,
+    getStoreProducts,
 } = require('./product.service');
 const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
@@ -44,6 +48,66 @@ module.exports = {
 
     getAll: (req, res) => {
         getAllProducts((err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
+    getProductForStore: (req, res) => {
+        const id = req.params.id;
+        getStoreProducts(id, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.json({ success: 0, message: "Something Went Wrong" });
+            }
+            return res.json({ success: 1, data: result });
+        });
+    },
+
+    searchAll: (req, res) => {
+        const key = req.params.key;
+        searchAllProducts(key, (err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
+
+    searchAllByStore: (req, res) => {
+        const key = req.params.key;
+        searchAllProductsByStoreName(key, (err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
+    searchAllByCate: (req, res) => {
+        const key = req.params.key;
+        searchAllProductsBySubCate(key, (err, results) => {
             if (err) {
                 return res.status(500).json({ success: 0, message: "Database Error" });
             }
