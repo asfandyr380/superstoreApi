@@ -50,7 +50,7 @@ module.exports = {
     },
     getUserById: (id, callBack) => {
         pool.query(
-            `select id, username, email, mobile from users where id = ?`,
+            `select * from users where id = ?`,
             [id],
             (error, results, fields) => {
                 if (error) {
@@ -102,4 +102,27 @@ module.exports = {
             }
         );
     },
+
+    updatePassword: (password, id, callBack) => {
+        pool.query(`update users set password = ? where id = ?`,
+            [password, id],
+            (error, result, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
+    updateVerificationStatus: (id, callBack) => {
+        pool.query(`update users set isVerified = 1 where id = ?`,
+            [id],
+            (error, result, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
 };

@@ -111,6 +111,22 @@ module.exports = {
         });
     },
 
+    updateGeneralCate: (data, callBack) => {
+        pool.query(
+            `update categories set cate_name = COALESCE(?, cate_name) where cate_Id = ?`,
+            [
+                data.name,
+                data.Id
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
     updateSuperCategory: (data, callBack) => {
         pool.query(
             `update super_cate set name = COALESCE(?, name) where superCate_Id = ?`,
@@ -268,4 +284,18 @@ module.exports = {
             }
         );
     },
+
+    getProductCate: (id, callBack) => {
+        pool.query(
+            `select * from product_cate where product_cate_Id = ?`,
+            [parseInt(id)],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
 };

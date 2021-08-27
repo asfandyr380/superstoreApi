@@ -1,4 +1,4 @@
-const { create, messageCount, getMessages } = require('./msg.services');
+const { create, messageCount, getMessages, updateMessageStatus } = require('./msg.services');
 
 module.exports = {
     createMsg: (req, res) => {
@@ -17,6 +17,18 @@ module.exports = {
                 res.json({ success: 0, message: "Something Went Wrong" });
             }
             return res.json(results);
+        });
+    },
+
+    updateStatus: (req, res) => {
+        const id = req.params.id;
+        updateMessageStatus(id, (err, result) => {
+            if(err)
+            {
+                console.log(err);
+                return;
+            }
+            return res.json({success: 1, message: "Status Updated Successfully"});
         });
     },
 

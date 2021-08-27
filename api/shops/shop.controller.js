@@ -17,11 +17,17 @@ const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
 var path = require('path');
-
+const nodemailer = require('nodemailer');
 var root = path.dirname(require.main.filename);
 module.exports = {
     createShop: (req, res) => {
         const body = req.body;
+        var mailOptions = {
+            from: 'info@gmail.com',
+            to: body.email,
+            subject: 'Thanks For Using Our Service',
+            text: 'Your Store Password is ' + body.password
+        };
         const salt = genSaltSync(10);
         body.password = hashSync(body.password, salt);
         create(body, (err, results) => {
@@ -32,6 +38,21 @@ module.exports = {
                     message: 'Database connection error'
                 });
             }
+            var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'asfandyr380@gmail.com',
+                    pass: 'gvplurnwpqkvopfb'
+                }
+            });
+
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
             return res.status(200).json({
                 success: 1,
                 message: "Account created successfully",
@@ -129,9 +150,8 @@ module.exports = {
                                 console.log(err);
                                 return res.json({ success: 0, message: "Database Connection Error" });
                             }
-                            if(!results)
-                            {
-                            return res.json({ success: 0, data: "No Stores Found" });
+                            if (!results) {
+                                return res.json({ success: 0, data: "No Stores Found" });
                             }
                             return res.json({ success: 1, data: results });
                         });

@@ -19,6 +19,11 @@ const { create,
     searchAllProductsByStoreName,
     searchAllProductsBySubCate,
     getStoreProducts,
+    getProductsByBrand,
+    getStoreProductCount,
+    getPendingProductCount,
+    getPendingProducts,
+    updateSalePrice
 } = require('./product.service');
 const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
@@ -46,8 +51,46 @@ module.exports = {
         });
     },
 
+    productCountforStore: (req, res) => {
+        const id = req.params.id;
+        getStoreProductCount(id, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            return res.json({ success: 1, count: result[0] });
+        });
+    },
+
+
+    pendingProductCount: (req, res) => {
+        getPendingProductCount((err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            return res.json(result[0]);
+        });
+    },
+
     getAll: (req, res) => {
         getAllProducts((err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
+
+    pendingProducts: (req, res) => {
+        getPendingProducts((err, results) => {
             if (err) {
                 return res.status(500).json({ success: 0, message: "Database Error" });
             }
@@ -345,6 +388,42 @@ module.exports = {
             );
         });
     },
+
+    getByStore: (req, res) => {
+        const body = req.body;
+        const offset = req.params.offset;
+        getProductsByBrand(body, offset, async (err, results) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            if (!results) {
+                return res.json({
+                    success: 0,
+                    message: 'Product not found'
+                });
+            }
+            var li = [];
+            for (i = 0; i < results.length; i++) {
+                var item = results[i];
+                var status = item['attribute_status'];
+                var id = item['id'];
+                if (status == 1) {
+                    var ress = await getAttribute(id).catch((err) => {
+                        console.log(err);
+                    });
+                    var data = { Product: item, Attribute: ress };
+                    li.push(data);
+                } else {
+                    li.push({ Product: item, Attribute: [] });
+                }
+            }
+            return res.json(
+                { Products: li, TotalProducts: 0 }
+            );
+        });
+    },
+
     byPrice: (req, res) => {
         const start = req.body.start;
         const end = req.body.end
@@ -402,6 +481,21 @@ module.exports = {
             });
         });
     },
+
+
+    changeSalePrice: (req, res) => {
+        const id = req.params.id;
+        const price = req.body.price;
+        const onSale = req.body.onSale;
+        updateSalePrice(id, price, onSale, (err, result) => {
+            if(err)
+            {
+                return;
+            }
+            return res.json({success: 1, message: "Updated Successfully"});
+        });
+    },
+
     deleteProduct: (req, res) => {
         const id = req.params.id;
         const email = req.body.email;

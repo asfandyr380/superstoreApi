@@ -42,4 +42,19 @@ module.exports = {
         );
     },
 
+
+    updateMessageStatus: (id, callBack) => {
+        pool.query(
+            `update messages set seen = 1 where Id = ?`,
+            [id],
+            (error, result, field) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            },
+        );
+    },
+
 };

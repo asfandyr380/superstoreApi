@@ -5,7 +5,7 @@ const { compareSync } = require('bcrypt');
 module.exports = {
     create: (data, callBack) => {
         pool.query(
-            'insert into products(name, price, salePrice, description, store_Id, onSale, status, cate_Id, image, image2, image3,image4, search_Key, attribute_status, alt_tag, meta_keywords, meta_Desc, shortDesc) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'insert into products(name, price, salePrice, description, store_Id, onSale, status, cate_Id, image, image2, image3,image4, search_Key, attribute_status, alt_tag, meta_keywords, meta_Desc, shortDesc, vatt) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 data.name,
                 data.price,
@@ -25,6 +25,7 @@ module.exports = {
                 data.meta_keywords,
                 data.meta_Desc,
                 data.shortDesc,
+                data.vatt,
             ],
             (error, results, fields) => {
                 if (error) {
@@ -36,7 +37,7 @@ module.exports = {
     },
 
     searchProduct: (data, callBack) => {
-        pool.query(`SELECT store_name, s.store_Id, id, name, price, salePrice, description, 
+        pool.query(`SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
         onSale, status, store_status, image, image2, image3,image4, main_cate,
         cate_name, subCate_name, attribute_status
         FROM stores s
@@ -52,10 +53,9 @@ module.exports = {
             });
     },
 
-
     addAttributes: (data, callBack) => {
-        pool.query(`INSERT INTO attribute(stock, variant, price, image, product_Id) VALUES(?,?,?,?,?)`,
-            [data.stock, data.variant, data.price, data.image, data.productId],
+        pool.query(`INSERT INTO attribute(stock, variant, price, image, product_Id, salePrice) VALUES(?,?,?,?,?,?)`,
+            [data.stock, data.variant, data.price, data.image, data.productId, data.salePrice],
             (error, result, fields) => {
                 if (error) {
                     console.log(error);
@@ -74,6 +74,18 @@ module.exports = {
         return res;
     },
 
+    getStoreProductCount: (id, callBack) => {
+        pool.query(`
+        select count(store_Id) as total FROM products where store_Id = ?`,
+            [id], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
 
     getProductCount: async () => {
         const query = util.promisify(pool.query).bind(pool);
@@ -84,6 +96,22 @@ module.exports = {
         JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
         WHERE status = 1 AND store_status = 1`);
         return res;
+    },
+
+
+    getPendingProductCount: callBack => {
+        pool.query(`SELECT count(id) as total
+        FROM stores s
+        JOIN products p on s.store_Id = p.store_Id
+        JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
+        WHERE status = 0 AND store_status = 1`,
+            [],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            });
     },
 
     getAllProducts: (callBack) => {
@@ -100,12 +128,28 @@ module.exports = {
             });
     },
 
+
+    getPendingProducts: callBack => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        WHERE status = 0`,
+            [], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
     getStoreProducts: (id, callBack) => {
         pool.query(`
         SELECT * FROM products p
         JOIN product_cate c ON p.cate_Id = c.product_cate_Id
         JOIN stores s ON p.store_Id = s.store_Id
-        where store_Id = ?`,
+        where p.store_Id = ?`,
             [id], (error, result, fields) => {
                 if (error) {
                     console.log(error);
@@ -164,7 +208,7 @@ module.exports = {
 
     getProducts: async (offset, callBack) => {
         pool.query(
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, 
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3,image4, main_cate,
             cate_name, subCate_name, attribute_status
             FROM stores s
@@ -186,7 +230,7 @@ module.exports = {
     },
     getByPrice: (start, end, callBack) => {
         pool.query(
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, 
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3,image4,main_cate,
             cate_name, subCate_name, attribute_status
             FROM stores s
@@ -217,7 +261,7 @@ module.exports = {
 
     onSaleProducts: async (page, callBack) => {
         pool.query(
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, 
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3, image4, main_cate,
             cate_name, subCate_name, attribute_status
             FROM stores s
@@ -252,7 +296,7 @@ module.exports = {
     topSellingProducts: async (page, callBack) => {
         pool.query(
             // `select id, shop_id, name, created_at from categories where id = ?`,
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, 
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, store_name, image, image2, image3, image4,main_cate,
             cate_name, subCate_name, sold, attribute_status
             FROM stores s
@@ -288,7 +332,7 @@ module.exports = {
 
     getProductsByCategories: async (body, offset, callBack) => {
         pool.query(
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, 
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3, image4,main_cate,
             cate_name, subCate_name, sold, attribute_status
             FROM stores s
@@ -301,6 +345,29 @@ module.exports = {
             LIMIT 10
             OFFSET ?`,
             [body.cate, body.subCate, parseInt(offset)],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
+    getProductsByBrand: (store, offset, callBack) => {
+        pool.query(
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
+            onSale, status, store_status, image, image2, image3, image4,main_cate,
+            cate_name, subCate_name, sold, attribute_status
+            FROM stores s
+            JOIN products p on s.store_Id = p.store_Id
+            JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
+            WHERE status = 1 AND store_status = 1 AND 
+            store_name = ?
+            ORDER BY price
+            LIMIT 10
+            OFFSET ?`,
+            [store.name, parseInt(offset)],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
@@ -360,6 +427,24 @@ module.exports = {
                     return callBack(error);
                 }
                 return callBack(null, results[0]);
+            }
+        );
+    },
+
+    updateSalePrice: (id, price, onSale, callBack) => {
+        pool.query(
+            `UPDATE products set salePrice = ?, status = 1, onSale = ? WHERE id = ?`,
+            [
+                price,
+                onSale,
+                id
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    console.log(err);
+                    return callBack(error);
+                }
+                return callBack(null, results);
             }
         );
     },

@@ -14,6 +14,8 @@ const { create,
     deleteSuperCate,
     deleteSubCate,
     getAllSuperCate,
+    updateGeneralCate,
+    getProductCate,
 } = require('./category.service');
 
 module.exports = {
@@ -134,6 +136,17 @@ module.exports = {
         });
     },
 
+    updateGeneralCate: (req, res) => {
+        const data = req.body;
+        updateGeneralCate(data,(err, result) => {
+            if (err) {
+                console.log(err);
+                return res.json({ success: 0, message: "Database Error" });
+            }
+            return res.json({ success: 1, message: "Category Updated Successfully" });
+        });
+    },
+
     updateProductCategory: (req, res) => {
         const id = req.params.id;
         const body = req.body;
@@ -203,6 +216,17 @@ module.exports = {
             res.json({ success: 0, message: "Nothing Found" });
         }
 
+    },
+
+    productCate: (req, res) => {
+        const id = req.params.id;
+        getProductCate(id, (err, result) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            return res.json({success: 1, data: result});
+        });
     },
 
     deleteCategory: (req, res) => {

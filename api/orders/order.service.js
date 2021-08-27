@@ -22,7 +22,7 @@ module.exports = {
 
     getCount: callBack => {
         pool.query(
-            `SELECT COUNT(orderId) as totalOrders FROM orders`,
+            `SELECT COUNT(distinct orderId) as totalOrders FROM orders`,
             [],
             (error, results, fields) => {
                 if (error) {
@@ -33,6 +33,50 @@ module.exports = {
         );
     },
 
+    countUnseenOrders: callBack => {
+        pool.query(
+            `SELECT COUNT(distinct orderId) as totalOrders, seen FROM orders where seen = 0`,
+            [],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
+    updateSeenStatus: (id, callBack) => {
+        pool.query(
+            `update orders set seen = 1 where orderId = ?`,
+            [
+                parseInt(id)
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
+    getCountforStore: (id, callBack) => {
+        pool.query(
+            `select COUNT(distinct c.store_Id) as totalOrders from orders o
+            join cart c on c.order_Id = o.orderId
+            where c.cart_status = 1 and o.order_status = 0 and c.store_Id = ?
+            GROUP BY orderId
+            order by o.orderId`,
+            [id],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
 
     searchOrderByUsername: (name, callBack) => {
         pool.query(
@@ -81,7 +125,7 @@ module.exports = {
             join products p on p.Id = c.product_Id
             join stores s on s.store_Id = c.store_Id
             join coupons cou on cou.coupon_Id = ch.coupon_Id
-            where c.cart_status = 1 and o.order_status = 0
+            where c.cart_status = 1
             order by o.orderId`,
             [],
             (error, results, fields) => {
@@ -101,7 +145,7 @@ module.exports = {
             join products p on p.Id = c.product_Id
             join stores s on s.store_Id = c.store_Id
             join coupons cou on cou.coupon_Id = ch.coupon_Id
-            where c.cart_status = 1 and o.order_status = 0 and s.store_Id = ?
+            where c.cart_status = 1 and s.store_Id = ?
             order by orderId`,
             [id],
             (error, results, fields) => {
@@ -155,6 +199,23 @@ module.exports = {
             }
         );
     },
+
+    updateOrderStatus: (id, status, callBack) => {
+        pool.query(
+            `update orders set order_status = ? where orderId = ?`,
+            [
+                status,
+                id
+            ],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
     deleteOrder: (id, callBack) => {
         pool.query(
             `delete from orders where id = ?`,
