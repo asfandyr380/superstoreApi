@@ -63,10 +63,10 @@ module.exports = {
 
     getCountforStore: (id, callBack) => {
         pool.query(
-            `select COUNT(distinct c.store_Id) as totalOrders from orders o
+            `SELECT COUNT(distinct orderId) as totalOrders FROM orders o
             join cart c on c.order_Id = o.orderId
-            where c.cart_status = 1 and o.order_status = 0 and c.store_Id = ?
-            GROUP BY orderId
+            where c.cart_status = 1 and c.store_Id = ?
+            GROUP BY o.orderId
             order by o.orderId`,
             [id],
             (error, results, fields) => {
