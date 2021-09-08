@@ -105,13 +105,12 @@ module.exports = {
             join products p on p.Id = c.product_Id
             join stores s on s.store_Id = c.store_Id
             join coupons cou on cou.coupon_Id = ch.coupon_Id
-            where c.cart_status = 1 and postal_Code Like ?`,
+            where c.cart_status = 1 and o.postal_Code Like ?`,
             [name + "%"],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
                 }
-                console.log(results);
                 return callBack(null, results);
             }
         );

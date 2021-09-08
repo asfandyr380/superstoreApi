@@ -4,7 +4,9 @@ const { create,
     topSellingProducts,
     updateProduct,
     deleteProduct,
-    getProductsByCategories,
+    getProductsByMainCategories,
+    getProductsBySuperCategories,
+    getProductsBySubCategories,
     getByPrice,
     searchProduct,
     getAttribute,
@@ -23,11 +25,15 @@ const { create,
     getStoreProductCount,
     getPendingProductCount,
     getPendingProducts,
-    updateSalePrice
+    updateSalePrice,
+    searchAllProductsBySubCateForStore,
+    searchAllProductsForStore,
 } = require('./product.service');
 const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
 const { getAdminByEmail } = require('../admin/admin.service');
+const { getShopByEmail } = require('../shops/shop.service');
+
 var path = require('path');
 const { compareSync } = require('bcrypt');
 
@@ -131,6 +137,23 @@ module.exports = {
         });
     },
 
+    searchAllForStore: (req, res) => {
+        const key = req.params.key;
+        const id = req.params.id;
+        searchAllProductsForStore(key, id, (err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
 
     searchAllByStore: (req, res) => {
         const key = req.params.key;
@@ -164,9 +187,26 @@ module.exports = {
         });
     },
 
+
+    searchAllByCateForStore: (req, res) => {
+        const key = req.params.key;
+        const id = req.params.id;
+        searchAllProductsBySubCateForStore(key, id, (err, results) => {
+            if (err) {
+                return res.status(500).json({ success: 0, message: "Database Error" });
+            }
+            if (!results) {
+                return res.status(404).json({ success: 0, message: "No Products Found" });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+
     upload: async (req, res) => {
         try {
-            console.log(req.files);
             await uploadImageMiddlewareMulti(req, res);
             if (req.files == undefined) {
                 return res.status(400).send({ message: "Please Upload an Image" });
@@ -253,7 +293,8 @@ module.exports = {
 
     getProducts: (req, res) => {
         var o = req.params.offset;
-        getProducts(o, async (err, results) => {
+        var limit = req.params.limit;
+        getProducts(o, limit, async (err, results) => {
             if (err) {
                 console.log(err);
                 return;
@@ -265,8 +306,10 @@ module.exports = {
                 });
             }
             var count = await getProductCount();
+            var totalPage = Math.ceil(count[0]['total'] / 16);
+
             var li = [];
-            for (i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 var item = results[i];
                 var status = item['attribute_status'];
                 var id = item['id'];
@@ -281,13 +324,12 @@ module.exports = {
                 }
             }
             return res.json(
-                { Products: li, TotalProducts: count[0]['total'] }
+                { Products: li, TotalProducts: count[0]['total'], TotalPage: totalPage, CurrentProduct: parseInt(o) }
             );
         });
     },
     saleProducts: (req, res) => {
-        var page = req.params.page;
-        onSaleProducts(page, async (err, results) => {
+        onSaleProducts(async (err, results) => {
             if (err) {
                 console.log(err);
                 return;
@@ -300,7 +342,7 @@ module.exports = {
             }
             var count = await getOnsaleCount();
             var li = [];
-            for (i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 var item = results[i];
                 var status = item['attribute_status'];
                 var id = item['id'];
@@ -320,8 +362,7 @@ module.exports = {
         });
     },
     topSelling: (req, res) => {
-        var page = req.params.page
-        topSellingProducts(page, async (err, results) => {
+        topSellingProducts(async (err, results) => {
             if (err) {
                 console.log(err);
                 return;
@@ -334,7 +375,7 @@ module.exports = {
             }
             var count = await getTopSellingCount();
             var li = [];
-            for (i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 var item = results[i];
                 var status = item['attribute_status'];
                 var id = item['id'];
@@ -353,40 +394,100 @@ module.exports = {
             );
         });
     },
+    
     byCategory: (req, res) => {
+        res.setHeader("Content-Type", "application/json");
         const body = req.body;
         const offset = req.params.offset;
-        getProductsByCategories(body, offset, async (err, results) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            if (!results) {
-                return res.json({
-                    success: 0,
-                    message: 'Product not found'
-                });
-            }
-            var count = await getProductCategoryCount(body.cate, body.subCate);
-            var li = [];
-            for (i = 0; i < results.length; i++) {
-                var item = results[i];
-                var status = item['attribute_status'];
-                var id = item['id'];
-                if (status == 1) {
-                    var ress = await getAttribute(id).catch((err) => {
-                        console.log(err);
-                    });
-                    var data = { Product: item, Attribute: ress };
-                    li.push(data);
-                } else {
-                    li.push({ Product: item, Attribute: [] });
+        const list = body.mainCate;
+        const superlist = body.superCate;
+        const sublist = body.subCate;
+        var l = [];
+        if (list.length > 0) {
+            getProductsByMainCategories(list, offset, async (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return;
                 }
-            }
-            return res.json(
-                { Products: li, TotalProducts: count[0]['total'] }
-            );
-        });
+                var count = result.length;
+                var totalPage = Math.ceil(count / 16);
+
+                var li = [];
+                for (let i = 0; i < result.length; i++) {
+                    var item = result[i];
+                    var status = item['attribute_status'];
+                    var id = item['id'];
+                    if (status == 1) {
+                        var ress = await getAttribute(id).catch((err) => {
+                            console.log(err);
+                        });
+                        var data = { Product: item, Attribute: ress };
+                        li.push(data);
+                    } else {
+                        li.push({ Product: item, Attribute: [] });
+                    }
+                }
+                return res.json(
+                    { Products: li, TotalProducts: count, TotalPage: totalPage, CurrentProduct: parseInt(offset) }
+                );
+            });
+        } else if (superlist.length > 0) {
+            getProductsBySuperCategories(superlist, offset, async (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                var count = result.length;
+                var totalPage = Math.ceil(count / 16);
+
+                var li = [];
+                for (let i = 0; i < result.length; i++) {
+                    var item = result[i];
+                    var status = item['attribute_status'];
+                    var id = item['id'];
+                    if (status == 1) {
+                        var ress = await getAttribute(id).catch((err) => {
+                            console.log(err);
+                        });
+                        var data = { Product: item, Attribute: ress };
+                        li.push(data);
+                    } else {
+                        li.push({ Product: item, Attribute: [] });
+                    }
+                }
+                return res.json(
+                    { Products: li, TotalProducts: count, TotalPage: totalPage, CurrentProduct: parseInt(offset) }
+                );
+            });
+        } else {
+            getProductsBySubCategories(sublist, offset, async (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                var count = result.length;
+                var totalPage = Math.ceil(count / 16);
+
+                var li = [];
+                for (let i = 0; i < result.length; i++) {
+                    var item = result[i];
+                    var status = item['attribute_status'];
+                    var id = item['id'];
+                    if (status == 1) {
+                        var ress = await getAttribute(id).catch((err) => {
+                            console.log(err);
+                        });
+                        var data = { Product: item, Attribute: ress };
+                        li.push(data);
+                    } else {
+                        li.push({ Product: item, Attribute: [] });
+                    }
+                }
+                return res.json(
+                    { Products: li, TotalProducts: count, TotalPage: totalPage, CurrentProduct: parseInt(offset) }
+                );
+            });
+        }
     },
 
     getByStore: (req, res) => {
@@ -404,7 +505,7 @@ module.exports = {
                 });
             }
             var li = [];
-            for (i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 var item = results[i];
                 var status = item['attribute_status'];
                 var id = item['id'];
@@ -439,7 +540,7 @@ module.exports = {
                 });
             }
             var li = [];
-            for (i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 var item = results[i];
                 var status = item['attribute_status'];
                 var id = item['id'];
@@ -488,11 +589,10 @@ module.exports = {
         const price = req.body.price;
         const onSale = req.body.onSale;
         updateSalePrice(id, price, onSale, (err, result) => {
-            if(err)
-            {
+            if (err) {
                 return;
             }
-            return res.json({success: 1, message: "Updated Successfully"});
+            return res.json({ success: 1, message: "Updated Successfully" });
         });
     },
 
@@ -508,6 +608,36 @@ module.exports = {
                 return res.json({ success: 0, message: "No User Found" });
             }
             var matchPass = compareSync(password, result.pass);
+            if (matchPass) {
+                deleteProduct(id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    return res.json({
+                        success: 1,
+                        data: 'Product deleted successfully'
+                    });
+                });
+            } else {
+                return res.json({ success: 0, message: "Password is Wrong" });
+            }
+        });
+    },
+
+
+    deleteProductByStore: (req, res) => {
+        const id = req.params.id;
+        const email = req.body.email;
+        const password = req.body.password;
+        getShopByEmail(email, (err, result) => {
+            if (err) {
+                return res.json({ success: 0, messgae: "Something is Wrong" });
+            }
+            if (!result) {
+                return res.json({ success: 0, message: "No User Found" });
+            }
+            var matchPass = compareSync(password, result.password);
             if (matchPass) {
                 deleteProduct(id, (err, results) => {
                     if (err) {

@@ -255,7 +255,7 @@ module.exports = {
                 console.log(err);
                 return res.json({ success: 0, message: "Database Error" });
             }
-            if (results.length !== 0) {
+            if (results.length > 0) {
                 var tempId = results[0]['orderId']
                 var tempUser = results[0]['username'];
                 var l = [];
@@ -335,8 +335,8 @@ module.exports = {
                     var tempcouponNo = rs[0]['coupon_No'];
                     var tempDiscount = rs[0]['discount'];
                     var tempPostalCode = rs[0]['postal_Code'];
-                    var tempOrderStatus = results[0]['order_status'];
-                    var tempSeen = results[0]['seen'];
+                    var tempOrderStatus = rs[0]['order_status'];
+                    var tempSeen = rs[0]['seen'];
                     for (i = 0; i < rs.length; i++) {
                         var item = rs[i];
                         var id = item['orderId'];

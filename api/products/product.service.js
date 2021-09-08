@@ -175,6 +175,21 @@ module.exports = {
     },
 
 
+    searchAllProductsForStore: (key, id, callBack) => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        where search_Key LIKE ? and p.store_Id = ?`,
+            ["%" + key + "%", id], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
     searchAllProductsByStoreName: (key, callBack) => {
         pool.query(`
         SELECT * FROM products p
@@ -206,7 +221,22 @@ module.exports = {
             });
     },
 
-    getProducts: async (offset, callBack) => {
+    searchAllProductsBySubCateForStore: (key, id, callBack) => {
+        pool.query(`
+        SELECT * FROM products p
+        JOIN product_cate c ON p.cate_Id = c.product_cate_Id
+        JOIN stores s ON p.store_Id = s.store_Id
+        where cate_name LIKE ? and p.store_Id = ?`,
+            ["%" + key + "%", id], (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
+    getProducts: async (offset, limit, callBack) => {
         pool.query(
             `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3,image4, main_cate,
@@ -216,9 +246,9 @@ module.exports = {
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
             WHERE status = 1 AND store_status = 1
             ORDER BY price
-            LIMIT 15
+            LIMIT ?
             OFFSET ?`,
-            [parseInt(offset)],
+            [parseInt(limit), parseInt(offset)],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
@@ -259,7 +289,7 @@ module.exports = {
         return res;
     },
 
-    onSaleProducts: async (page, callBack) => {
+    onSaleProducts: async (callBack) => {
         pool.query(
             `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3, image4, main_cate,
@@ -269,9 +299,8 @@ module.exports = {
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
             WHERE status = 1 AND onsale = 1 AND store_status = 1
             ORDER BY price
-            LIMIT 15
-            OFFSET ?`,
-            [parseInt(page)],
+            LIMIT 15`,
+            [],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
@@ -293,7 +322,7 @@ module.exports = {
     },
 
 
-    topSellingProducts: async (page, callBack) => {
+    topSellingProducts: async (callBack) => {
         pool.query(
             // `select id, shop_id, name, created_at from categories where id = ?`,
             `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
@@ -304,9 +333,8 @@ module.exports = {
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
             WHERE status = 1 AND store_status = 1 AND sold >= 5
             ORDER BY price
-            LIMIT 15
-            OFFSET ?`,
-            [parseInt(page)],
+            LIMIT 15`,
+            [],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
@@ -330,7 +358,7 @@ module.exports = {
         return res;
     },
 
-    getProductsByCategories: async (body, offset, callBack) => {
+    getProductsByMainCategories: async (mainCate, offset, callBack) => {
         pool.query(
             `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
             onSale, status, store_status, image, image2, image3, image4,main_cate,
@@ -339,12 +367,58 @@ module.exports = {
             JOIN products p on s.store_Id = p.store_Id
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
             WHERE status = 1 AND store_status = 1 AND 
-            cate_name = ?
-            OR subCate_name = ?
+            pc.main_cate in (?)
             ORDER BY price
-            LIMIT 10
+            LIMIT 16
             OFFSET ?`,
-            [body.cate, body.subCate, parseInt(offset)],
+            [mainCate, parseInt(offset)],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
+    getProductsBySuperCategories: async (superCate, offset, callBack) => {
+        pool.query(
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
+            onSale, status, store_status, image, image2, image3, image4,main_cate,
+            cate_name, subCate_name, sold, attribute_status
+            FROM stores s
+            JOIN products p on s.store_Id = p.store_Id
+            JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
+            WHERE status = 1 AND store_status = 1 AND 
+            pc.cate_name in (?)
+            ORDER BY price
+            LIMIT 16
+            OFFSET ?`,
+            [superCate, parseInt(offset)],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results);
+            }
+        );
+    },
+
+
+    getProductsBySubCategories: async (subCate, offset, callBack) => {
+        pool.query(
+            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
+            onSale, status, store_status, image, image2, image3, image4,main_cate,
+            cate_name, subCate_name, sold, attribute_status
+            FROM stores s
+            JOIN products p on s.store_Id = p.store_Id
+            JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
+            WHERE status = 1 AND store_status = 1 AND 
+            pc.subCate_name in (?)
+            ORDER BY price
+            LIMIT 16
+            OFFSET ?`,
+            [subCate, parseInt(offset)],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
