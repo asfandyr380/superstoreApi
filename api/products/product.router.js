@@ -27,6 +27,8 @@ const {
     deleteProductByStore,
     searchAllByCateForStore,
     searchAllForStore,
+    deleteAttribute,
+    changeAttributeStatus,
 } = require('./product.controller');
 const router = require('express').Router();
 const { checkToken } = require('../../auth/token_validation');
@@ -57,8 +59,10 @@ router.get('/onSale', saleProducts);
 router.get('/topSelling', topSelling);
 router.put('/:id', updateProduct);
 router.put('/salePrice/:id', changeSalePrice);
+router.put('/status/:id/:state', changeAttributeStatus);
 router.delete('/:id', deleteProduct);
 router.delete('/store/:id', deleteProductByStore);
+router.delete('/attribute/:id', deleteAttribute);
 router.post('/search', search);
 
 module.exports = router;

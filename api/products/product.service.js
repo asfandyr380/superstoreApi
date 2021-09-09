@@ -74,6 +74,18 @@ module.exports = {
         return res;
     },
 
+    removeAttribute: (id, callBack) => {
+        pool.query(`delete from attribute where attribute_Id = ?`,
+            [id],
+            (error, result, fields) => {
+                if (error) {
+                    console.log(error);
+                    return callBack(error);
+                }
+                return callBack(null, result);
+            });
+    },
+
     getStoreProductCount: (id, callBack) => {
         pool.query(`
         select count(store_Id) as total FROM products where store_Id = ?`,
@@ -461,8 +473,10 @@ module.exports = {
             (error, results, fields) => {
                 if (error) {
                     console.log(err);
+                    return callBack(err);
                 }
-                console.log('Status Updated');
+                // console.log('Status Updated');
+                return callBack(null, results);
             }
         );
     },

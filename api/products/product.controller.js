@@ -28,6 +28,7 @@ const { create,
     updateSalePrice,
     searchAllProductsBySubCateForStore,
     searchAllProductsForStore,
+    removeAttribute
 } = require('./product.service');
 const uploadImageMiddlewareMulti = require('../Upload/MultiUploadMiddleware');
 const uploadImageMiddleware = require('../Upload/uploadMiddleware');
@@ -236,6 +237,17 @@ module.exports = {
         return res.json({ success: 1, data: result });
     },
 
+    deleteAttribute: (req, res) => {
+        const id = req.params.id;
+        removeAttribute(id, (err, result) => {
+            if(err)
+            {
+                return res.json({success: 0, message: "Database Error"});
+            }
+            return res.json({success: 1, message: "Attribute Removed"});
+        });
+    },
+
     uploadAttributeImg: async (req, res) => {
         try {
             await uploadImageMiddleware(req, res);
@@ -254,11 +266,29 @@ module.exports = {
             if (err) {
                 res.json({ success: 0, message: err.message });
             }
-            updateAttributeStatus(data.productId, 1);
+            updateAttributeStatus(data.productId, 1, (err, result) => {
+                if(err)
+                {
+                    return res.json({success: 0, message: "Status Not Updated"});
+                }
+            });
             return res.json({
                 success: 1,
                 data: result
             });
+        });
+    },
+
+    changeAttributeStatus: (req, res) =>
+    {
+        const id = req.params.id;
+        const state = req.params.state;
+        updateAttributeStatus(id, state, (err, result) => {
+            if(err)
+            {
+                return res.json({success: 0, message: "database Error"});
+            }
+            return res.json({success: 1, message: "Status Updated Successfully"});
         });
     },
 
