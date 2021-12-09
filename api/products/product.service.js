@@ -250,9 +250,7 @@ module.exports = {
 
     getProducts: async (offset, limit, callBack) => {
         pool.query(
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
-            onSale, status, store_status, image, image2, image3,image4, main_cate,
-            cate_name, subCate_name, attribute_status
+            `SELECT *
             FROM stores s
             JOIN products p on s.store_Id = p.store_Id
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id
@@ -303,9 +301,7 @@ module.exports = {
 
     onSaleProducts: async (callBack) => {
         pool.query(
-            `SELECT store_name, s.store_Id, id, name, price, salePrice, description, shortDesc,
-            onSale, status, store_status, image, image2, image3, image4, main_cate,
-            cate_name, subCate_name, attribute_status
+            `SELECT *
             FROM stores s
             JOIN products p on s.store_Id = p.store_Id
             JOIN product_cate pc ON p.cate_Id = pc.product_cate_Id

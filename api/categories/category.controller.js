@@ -16,7 +16,10 @@ const { create,
     getAllSuperCate,
     updateGeneralCate,
     getProductCate,
+    getAllCate,
 } = require('./category.service');
+const { getAdminByEmail } = require('../admin/admin.service');
+const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 
 module.exports = {
     createCategory: (req, res) => {
@@ -136,9 +139,9 @@ module.exports = {
         });
     },
 
-    updateGeneralCate: (req, res) => {
+    updateGeneralcate: (req, res) => {
         const data = req.body;
-        updateGeneralCate(data,(err, result) => {
+        updateGeneralCate(data, (err, result) => {
             if (err) {
                 console.log(err);
                 return res.json({ success: 0, message: "Database Error" });
@@ -225,49 +228,128 @@ module.exports = {
                 console.log(err);
                 return;
             }
-            return res.json({success: 1, data: result});
+            return res.json({ success: 1, data: result });
         });
     },
 
     deleteCategory: (req, res) => {
         const id = req.params.id;
-        deleteCategory(id, (err, results) => {
+        const pass = req.body.password;
+        const email = req.body.email;
+        getAdminByEmail(email, (err, results) => {
             if (err) {
                 console.log(err);
-                return;
             }
-            return res.json({
-                success: 1,
-                data: 'Category deleted successfully'
-            });
+            if (!results) {
+                return res.json({
+                    success: 0,
+                    message: 'User not found'
+                });
+            }
+            const result = compareSync(pass, results.pass);
+            if (result) {
+                results.password = undefined;
+                deleteCategory(id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    return res.json({
+                        success: 1,
+                        data: 'Category deleted successfully'
+                    });
+                });
+            } else {
+                return res.json({
+                    success: 0,
+                    message: 'Password is Wrong'
+                });
+            }
+
         });
     },
 
     deleteSuperCate: (req, res) => {
         const id = req.params.id;
-        deleteSuperCate(id, (err, results) => {
+        const pass = req.body.password;
+        const email = req.body.email;
+        getAdminByEmail(email, (err, results) => {
             if (err) {
                 console.log(err);
-                return;
             }
-            return res.json({
-                success: 1,
-                data: 'Category deleted successfully'
-            });
+            if (!results) {
+                return res.json({
+                    success: 0,
+                    message: 'User not found'
+                });
+            }
+            const result = compareSync(pass, results.pass);
+            if (result) {
+                results.password = undefined;
+                deleteSuperCate(id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    return res.json({
+                        success: 1,
+                        data: 'Category deleted successfully'
+                    });
+                });
+            } else {
+                return res.json({
+                    success: 0,
+                    message: 'Password is Wrong'
+                });
+            }
+
         });
     },
 
     deleteSubCate: (req, res) => {
         const id = req.params.id;
-        deleteSubCate(id, (err, results) => {
+        const pass = req.body.password;
+        const email = req.body.email;
+        getAdminByEmail(email, (err, results) => {
             if (err) {
                 console.log(err);
-                return;
             }
-            return res.json({
-                success: 1,
-                data: 'Category deleted successfully'
-            });
+            if (!results) {
+                return res.json({
+                    success: 0,
+                    message: 'User not found'
+                });
+            }
+            const result = compareSync(pass, results.pass);
+            if (result) {
+                results.password = undefined;
+                deleteSubCate(id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    return res.json({
+                        success: 1,
+                        data: 'Category deleted successfully'
+                    });
+                });
+            } else {
+                return res.json({
+                    success: 0,
+                    message: 'Password is Wrong'
+                });
+            }
+
         });
     },
+
+    allCate: (req, res) => {
+        getAllCate((error, result) => {
+            if (error) {
+                return res.json({ success: 0, message: "Something went Wrong try again" });
+            }
+            return res.json({ success: 1, data: result });
+        });
+    },
+
 }

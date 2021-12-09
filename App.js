@@ -23,7 +23,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({ origin: "*" }));
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('assets/images/Stores'));
+app.use('/uploads', express.static('assets/images/Products'));
+app.use('/uploads', express.static('assets/images/Banners'));
 
 app.use('/api/users', userRouter);
 app.use('/api/stores', shopRouter);

@@ -31,12 +31,12 @@ module.exports = {
                 if (l.length !== 0) {
                     const query = util.promisify(pool.query).bind(pool);
 
-                    for (i = 0; i < l.length; i++) {
+                    for (let i = 0; i < l.length; i++) {
                         var sup = await query(`INSERT INTO super_cate(cate_Id, name) VALUES(?, ?)`, [result['insertId'], l[i]['name']]);
                         // console.log(l[i]['SubCate']);
                         var li = l[i]['SubCate'];
                         if (li.length !== 0) {
-                            for (j = 0; j < li.length; j++) {
+                            for (let j = 0; j < li.length; j++) {
                                 var sub = await query(`INSERT INTO sub_cate(superCate_Id, name) VALUES(?, ?)`, [sup['insertId'], li[j]['name']]);
                             }
                         }
@@ -212,7 +212,7 @@ module.exports = {
                         if (error) {
                             return callBack(error);
                         }
-                        for (i = 0; i < q.length; i++) {
+                        for (let i = 0; i < q.length; i++) {
                             var qId = q[i]['superCate_Id'];
                             pool.query(
                                 `delete from sub_cate where superCate_Id = ?`,
@@ -300,6 +300,28 @@ module.exports = {
                 return callBack(null, results[0]);
             }
         );
+    },
+
+    getAllCate: (callBack) => {
+        pool.query('Select * from categories', [], (error, result) => {
+            if (error) {
+                console.log(error);
+                return callBack(error);
+            }
+            pool.query('Select * from super_cate', [], (err, res) => {
+                if (err) {
+                    console.log(err);
+                    return callBack(err);
+                }
+                pool.query('Select * from sub_cate', [], (e, re) => {
+                    if (e) {
+                        console.log(e);
+                        return callBack(e);
+                    }
+                    return callBack(null, { General: result, Super: res, Sub: re });
+                });
+            });
+        });
     },
 
 };

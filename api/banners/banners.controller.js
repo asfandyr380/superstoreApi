@@ -24,9 +24,9 @@ module.exports = {
     },
 
     getImage: (req, res) => {
-        var imagePath  = req.params.image;
+        var imagePath = req.params.image;
         return res.sendFile(
-            root + '/assets/images/Banners/' + imagePath
+            path.join(process.cwd() + '/assets/images/Banners/' + imagePath)
         );
     }
 
