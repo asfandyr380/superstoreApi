@@ -2,7 +2,7 @@
   "name": "vello_food_api",
   "version": "1.0.0",
   "description": "",
-  "main": "App.js",
+  "main": "app.js",
   "engines": {
     "node": "12.11.1"
   },
