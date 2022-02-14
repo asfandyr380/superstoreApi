@@ -80,7 +80,7 @@ module.exports = {
         pool.query(`UPDATE stores 
         set store_name = ?, owner_name = ?, email = ?, address = ?, postal_code = ?, phone = ?, logo = COALESCE(?, logo) 
         WHERE store_Id = ?`,
-            [data.name, data.owner_name, data.email, data.address, data.postal_code, data.phone, data.logo, id],
+            [data.store_name, data.owner_name, data.email, data.address, data.postal_code, data.phone, data.logo, id],
             (error, result, fields) => {
                 if (error) {
                     return callBack(error);

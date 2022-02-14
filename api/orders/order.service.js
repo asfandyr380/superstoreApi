@@ -3,13 +3,15 @@ const pool = require('../../config/database');
 module.exports = {
     create: (data, callBack) => {
         pool.query(
-            'insert into orders(user_id, product_id, quantity, address, transaction_no) values(?, ?, ?, ?, ?)',
+            'insert into orders(userAddress, checkout_Id, date, postal_Code, order_status, username, seen) values(?, ?, ?, ?, ?, ?, ?)',
             [
-                data.user_id,
-                data.product_id,
-                data.quantity,
-                data.address,
-                data.transaction_no
+                data.userAddress,
+                data.checkout_Id,
+                data.date,
+                data.postalCode,
+                data.order_status,
+                data.username,
+                data.seen,
             ],
             (error, results, fields) => {
                 if (error) {
@@ -218,6 +220,19 @@ module.exports = {
     deleteOrder: (id, callBack) => {
         pool.query(
             `delete from orders where id = ?`,
+            [id],
+            (error, results, fields) => {
+                if (error) {
+                    return callBack(error);
+                }
+                return callBack(null, results[0]);
+            }
+        );
+    },
+
+    checkifOrdered: (id, callBack) => {
+        pool.query(
+            `select * from orders where checkout_Id = ?`,
             [id],
             (error, results, fields) => {
                 if (error) {

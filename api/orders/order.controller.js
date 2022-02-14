@@ -1,4 +1,4 @@
-const { request } = require('express');
+require('dotenv').config();
 const { create,
     getOrders,
     getShopOrders,
@@ -13,8 +13,10 @@ const { create,
     updateOrderStatus,
     countUnseenOrders,
     updateSeenStatus,
+    checkifOrdered,
 } = require('./order.service');
-
+const secretKey = process.env.stripeSecretKey;
+const stripe = require("stripe")(secretKey);
 module.exports = {
     createOrder: (req, res) => {
         const body = req.body;
@@ -28,7 +30,8 @@ module.exports = {
             }
             return res.status(200).json({
                 success: 1,
-                message: 'Order placed successfully !'
+                message: 'Order placed successfully !',
+                data: results,
             });
         });
     },
@@ -165,7 +168,7 @@ module.exports = {
         });
     },
 
-    getOrders: (req, res) => {
+    getOrderss: (req, res) => {
         getOrders((err, results) => {
             if (err) {
                 console.log(err);
@@ -489,6 +492,59 @@ module.exports = {
             return res.json({
                 success: 1,
                 data: 'Category deleted successfully'
+            });
+        });
+    },
+
+    createPaymentIntent: async (req, res) => {
+        const checkoutId = req.body.checkoutId;
+        const username = req.body.username;
+        const address = req.body.address;
+        const postal = req.body.postal;
+        const ids = req.body.ids;
+        const success_url = `http://localhost:50989/#/Success?id=${checkoutId}&username=${username}&postal=${postal}&address=${address}&ids=${ids}`;
+        try {
+            const session = await stripe.checkout.sessions.create({
+                mode: "payment",
+                payment_method_types: ["card"],
+                line_items: req.body.items.map(item => {
+                    return {
+                        price_data: {
+                            currency: "usd",
+                            product_data: {
+                                name: item.name,
+                            },
+                            unit_amount: item.price * 100,
+                        },
+                        quantity: item.quantity,
+                    }
+                }),
+                success_url: success_url,
+                cancel_url: "http://localhost:3000/#/Cancel",
+            });
+            return res.json({ success: 1, data: session });
+        } catch (error) {
+            console.log(error);
+            return res.json({ succss: 0, message: error });
+        }
+    },
+
+    checkifAlreadyOrdered: (req, res) => {
+        const id = req.params.id;
+        checkifOrdered(id, (err, results) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            if (!results) {
+                return res.json({
+                    success: 1,
+                    data: false,
+                });
+            }
+            return res.json({
+                success: 1,
+                data: true,
             });
         });
     }
